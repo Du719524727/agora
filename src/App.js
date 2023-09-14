@@ -35,17 +35,21 @@ import {
   useRemoteUsers,
 } from "agora-rtc-react";
 import React, { useState } from "react";
+import { GuardProvider } from "@authing/guard-react18";
+import "@authing/guard-react/dist/esm/guard.min.css";
+import RouterComponent from "./router";
 
 import "./index.css";
 import logo from "./logo.svg";
 
 function Basics()  {
-  const [calling, setCalling] = useState(false);
-  const isConnected = useIsConnected();
-  const [appId, setAppId] = useState(""); 
-  const [channel, setChannel] = useState(""); 
+  const [calling, setCalling] = useState(false); //是否正在呼叫
+  const isConnected = useIsConnected(); //存储App ID的状态
+  const [appId, setAppId] = useState("");  //存储频道名的状态
+  const [channel, setChannel] = useState("");  //存储token的转态
   const [token, setToken] = useState("");
 
+  // 使用App ID,频道名和Token加入频道,是否加入频道取决于calling的状态
   useJoin({appid: appId, channel: channel, token: token ? token : null}, calling);
   //local user
   const [micOn, setMic] = useState(true);
@@ -56,8 +60,23 @@ function Basics()  {
   //remote users
   const remoteUsers = useRemoteUsers();
 
+  // const guard = new GuardFactory.Guard({
+  //   // 你可以前往 Authing 控制台的本应用详情页查看你的 APP ID
+  //   appId: "65015ead3a8ba1d4e74a33e8",
+  //   // 如果你使用的是私有化部署的 Authing 服务，需要传入自定义 host，如:
+  //   host: 'https://livecx.authing.cn/oidc',
+  // });
+
+  // 挂载 Authing Guard
+  // guard.start("#authing-guard-container");
+
   return (
-    <>
+    <GuardProvider
+      appId="65015ead3a8ba1d4e74a33e8"
+      host="https://livecx.authing.cn/oidc"
+    >
+       <RouterComponent>
+      <>
       <div className="room">
         {isConnected ? (
           <div className="user-list">
@@ -127,7 +146,11 @@ function Basics()  {
           </button>
         </div>
       )}
-    </>
+      </>
+
+      </RouterComponent>
+    </GuardProvider>
+
   );
 };
 
